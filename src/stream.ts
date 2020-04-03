@@ -17,7 +17,7 @@ export type wsCallbackObj = {
   onopen?: () => void;
   onclose?: () => void;
   onerror?: (e: Error) => void;
-  onmessage: (msg: string) => Promise<boolean> | boolean | void;
+  onmessage: (msg: string) => boolean | Promise<boolean> | void;
 };
 
 type consumerObj = {
@@ -33,7 +33,7 @@ export class Stream {
   topic: string;
   private _producer: any;
   private _consumers: Array<consumerObj>;
-  private _producerIntervalId?: any;
+  // private _producerIntervalId?: any;
 
   constructor(
     connection: Connection,
@@ -45,7 +45,7 @@ export class Stream {
     this.isCollectionStream = isCollectionStream;
     this.local = local;
     this._consumers = [];
-    this._producerIntervalId = undefined;
+    // this._producerIntervalId = undefined;
     this.name = name;
 
     let topic = this.name;
@@ -236,7 +236,7 @@ export class Stream {
 
     const consumerUrl = `wss://${dcName}/_ws/ws/v2/consumer/${persist}/${tenant}/${region}.${dbName}/${
       this.topic
-    }/${subscriptionName}?${queryParams}`;
+      }/${subscriptionName}?${queryParams}`;
 
     const consumerObj: consumerObj = {
       consumer: ws(consumerUrl),
@@ -247,33 +247,38 @@ export class Stream {
 
     const { consumer } = consumerObj;
 
-    consumer.on("open", () => {
+    consumer.addEventListener("open", () => {
       typeof onopen === "function" && onopen();
-
-      consumerObj["intervalId"] = setInterval(() => {
-        consumer.send(JSON.stringify("noop"));
-      }, 30000);
     });
 
-    consumer.on("close", () => {
-      clearInterval(consumerObj.intervalId);
+    consumer.addEventListener("close", () => {
       typeof onclose === "function" && onclose();
     });
 
-    consumer.on("error", (e: Error) => {
+    consumer.addEventListener("error", (e: Error) => {
       typeof onerror === "function" && onerror(e);
     });
 
-    consumer.on("message", async (msg: string) => {
+    consumer.addEventListener("message", (msgEvent: any) => {
+      const msg = msgEvent.data;
       const message = JSON.parse(msg);
       const ackMsg = { messageId: message.messageId };
       const { payload } = message;
 
       if (payload !== btoa("noop") && payload !== "noop") {
         if (typeof onmessage === "function") {
-          const shouldAck = await onmessage(msg);
-          if (shouldAck !== false) {
-            consumer.send(JSON.stringify(ackMsg));
+          if (onmessage.constructor.name === 'AsyncFunction') {
+            //@ts-ignore 
+            onmessage(msg).then((ack: boolean, csm = consumer, acm = ackMsg) => {
+              if (ack !== false) {
+                csm.send(JSON.stringify(acm));
+              }
+            })
+          } else {
+            const ack = onmessage(msg);
+            if (ack !== false) {
+              consumer.send(JSON.stringify(ackMsg));
+            }
           }
         }
       } else {
@@ -290,6 +295,7 @@ export class Stream {
     callbackObj?: wsCallbackObj
   ) {
     type CallbackFunction = () => void;
+    let sendOnce = true;
     let onopen: CallbackFunction | undefined;
     let onclose: CallbackFunction | undefined;
     let onmessage: (msg: string) => Promise<boolean> | boolean | void;
@@ -305,6 +311,7 @@ export class Stream {
         throw "DC name not provided to establish producer connection";
 
       const lowerCaseUrl = dcName.toLocaleLowerCase();
+
       if (lowerCaseUrl.includes("http") || lowerCaseUrl.includes("https"))
         throw "Invalid DC name";
       const persist = StreamConstants.PERSISTENT;
@@ -316,33 +323,38 @@ export class Stream {
 
       const producerUrl = `wss://${dcName}/_ws/ws/v2/producer/${persist}/${tenant}/${region}.${dbName}/${
         this.topic
-      }`;
+        }`;
 
       this._producer = ws(producerUrl);
 
-      this._producer.on("message", (msg: string) => {
+      this._producer.addEventListener("message", (msgEvent: any) => {
+        const msg = msgEvent.data;
         typeof onmessage === "function" && onmessage(msg);
       });
 
-      this._producer.on("open", () => {
-        this._producerIntervalId = setInterval(() => {
-          this._producer.send(JSON.stringify({ payload: "noop" }));
-        }, 30000);
-        if (!Array.isArray(message)) {
-          this._producer.send(JSON.stringify({ payload: btoa(message) }));
-        } else {
-          for (let i = 0; i < message.length; i++) {
-            this._producer.send(JSON.stringify({ payload: btoa(message[i]) }));
+      this._producer.addEventListener("open", () => {
+
+        // this._producerIntervalId = setInterval(() => {
+        //   this._producer.ping();
+        // }, 30000);
+        if (sendOnce) {
+          if (!Array.isArray(message)) {
+            this._producer.send(JSON.stringify({ payload: btoa(message) }));
+          } else {
+            for (let i = 0; i < message.length; i++) {
+              this._producer.send(JSON.stringify({ payload: btoa(message[i]) }));
+            }
           }
+          sendOnce = false
         }
         typeof onopen === "function" && onopen();
       });
-      this._producer.on("close", () => {
-        clearInterval(this._producerIntervalId);
+      this._producer.addEventListener("close", () => {
+        // clearInterval(this._producerIntervalId);
         typeof onclose === "function" && onclose();
       });
 
-      this._producer.on("error", (e: Error) => {
+      this._producer.addEventListener("error", (e: Error) => {
         typeof onerror === "function" && onerror(e);
       });
     } else {
@@ -358,15 +370,26 @@ export class Stream {
         console.warn("Producer connection not open yet. Please wait.");
       }
     }
+
+    return({
+      ...this._producer, send: (message: string) => {
+        if (!Array.isArray(message)) {
+          this._producer.send(JSON.stringify({ payload: btoa(message) }));
+        } else {
+          for (let i = 0; i < message.length; i++) {
+            this._producer.send(JSON.stringify({ payload: btoa(message[i]) }));
+          }
+        }
+      }
+    });
   }
 
   closeConnections() {
-    this._producerIntervalId && clearInterval(this._producerIntervalId);
     this._producer && this._producer.terminate();
     this._consumers &&
       this._consumers.forEach(consumerObj => {
         consumerObj.consumer.terminate();
-        clearInterval(consumerObj.intervalId);
       });
   }
+
 }
