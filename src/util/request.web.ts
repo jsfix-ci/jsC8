@@ -4,8 +4,11 @@ import { format as formatUrl, parse as parseUrl } from "url";
 import { Errback } from "./types";
 import { joinPath } from "./joinPath";
 import xhr from "./xhr";
+import { HttpError } from "../error";
 
 export const isBrowser = true;
+
+const MIME_JSON = /\/(json|javascript)(\W|$)/;
 
 function omit<T>(obj: T, keys: (keyof T)[]): T {
   const result = {} as T;
@@ -53,17 +56,40 @@ export function createRequest(baseUrl: string, agentOptions: any, fetch: any) {
         body,
         method,
         headers,
-      })
-        .then(function(response: any) {
-          return response.json();
-        })
-        .then((res: any) => {
-          if (res.error) {
-            callback(res as any);
-          } else {
-            callback(null, res as any);
-          }
-        });
+      }).then(function(response: Response) {
+        // get content type from header
+        if (response.status && response.status >= 400) {
+          response.json().then((res: any) => {
+            callback(new HttpError(res as any));
+          });
+        }
+
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.match(MIME_JSON)) {
+          response
+            .json()
+            .then((res: any) => {
+              if (res.error) {
+                callback(res as any);
+              } else {
+                callback(null, res as any);
+              }
+            })
+            .catch((e) => {
+              callback(e as any);
+            });
+        } else {
+          response
+            .text()
+            .then((res) => {
+              callback(null, res as any);
+            })
+            .catch((e) => {
+              callback(e as any);
+            });
+        }
+      });
     } else {
       const req = xhr(
         {

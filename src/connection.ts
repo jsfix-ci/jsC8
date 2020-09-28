@@ -369,9 +369,26 @@ export class Connection {
         reject,
         resolve: (res: C8jsResponse) => {
           if (isBrowser && this._agent) {
-            resolve(
-              getter ? getter({ body: res } as any) : ({ body: res } as any)
-            );
+            if (typeof res === "string") {
+              if (!expectBinary) {
+                reject(res);
+                return;
+              }
+            } else {
+              if (
+                res &&
+                res.hasOwnProperty("error") &&
+                res.hasOwnProperty("code") &&
+                res.hasOwnProperty("errorMessage") &&
+                res.hasOwnProperty("errorNum")
+              ) {
+                reject(new C8Error({ body: res } as any));
+              } else {
+                resolve(
+                  getter ? getter({ body: res } as any) : ({ body: res } as any)
+                );
+              }
+            }
           } else {
             const contentType = res.headers["content-type"];
             let parsedBody: any = undefined;
