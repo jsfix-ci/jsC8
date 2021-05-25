@@ -1,13 +1,13 @@
 import { Connection } from "./connection";
 import { getFullStreamPath } from "./util/helper";
 import { stringify } from "query-string";
-import * as jsonata from "jsonata";
 ​
 // 2 document
 // 3 edge
 // 4 persistent
 ​
 import { ws } from "./util/webSocket";
+import { callbackWithMessageFiltering } from "./util/streamConsumerFilter";
 ​
 export enum StreamConstants {
   PERSISTENT = "persistent",
@@ -25,7 +25,7 @@ enum StreamConsumerFilterCondition {
   OR = "or"
 }
 ​
-enum StreamConsumerFilterOperators {
+export enum StreamConsumerFilterOperators {
   EQUALS = "equals",
   NOT_EQUALS = "notEquals",
   GREATER_THAN = "greaterThan",
@@ -40,7 +40,7 @@ type StreamConsumerFilterExpression = {
   value: any
 }
 ​
-type StreamConsumerFilter = {
+export type StreamConsumerFilter = {
   expressions: StreamConsumerFilterExpression[];
   condition: StreamConsumerFilterCondition;
 }
@@ -245,54 +245,7 @@ export class Stream {
             }
             
             const updateCallback = (event: any) => {
-              if (!_filters || !_filters.expressions.length) return callback(event);
-    
-              const parsedEvent = JSON.parse(event);
-              const decodedPayload = atob(parsedEvent.payload);
-              let parsedPayload;
-              try {
-                parsedPayload = JSON.parse(decodedPayload);
-              } catch (error) {
-                return callback(event);
-              }
-    
-              let filterString = "";
-              _filters.expressions.forEach((expression, index) => {
-                const isLastExpression = _filters.expressions.length - 1 === index;
-                filterString = `${filterString} ${expression.key} [COMPARISON_OPERATOR] ${typeof expression.value !== "number" ? `"${expression.value}"` : `${expression.value}`} ${!isLastExpression ? _filters.condition : ""}`;
-    
-                switch (expression.op) {
-                  case StreamConsumerFilterOperators.EQUALS:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", "=");
-                    break;
-                  case StreamConsumerFilterOperators.NOT_EQUALS:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", "!=");
-                    break;
-                  case StreamConsumerFilterOperators.GREATER_THAN:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", ">");
-                    break;
-                  case StreamConsumerFilterOperators.LESS_THAN:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", "<");
-                    break;
-                  case StreamConsumerFilterOperators.GREATER_THAN_OR_EQUALS:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", ">=");
-                    break;
-                  case StreamConsumerFilterOperators.LESS_THAN_OR_EQUALS:
-                    filterString = filterString.replace("[COMPARISON_OPERATOR]", "<=");
-                    break;
-                }
-              });
-    
-              const filterExpression = jsonata(filterString);
-              try {
-                if (!filterExpression.evaluate(parsedPayload)) {
-                  parsedEvent.payload = btoa("{}");
-                }
-              } catch (error) {
-                parsedEvent.payload = btoa("{}");
-              }
-    
-              return callback(JSON.stringify(parsedEvent));
+              return callbackWithMessageFiltering(event, _filters, callback);
             };
     
             return target[property].apply(target, [operation, updateCallback]);
