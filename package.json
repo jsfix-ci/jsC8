@@ -2,6 +2,9 @@
   "name": "jsc8",
   "version": "0.17.6-beta.2",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10"
+  },
   "description": "The official C8 JavaScript driver.",
   "homepage": "https://github.com/macrometacorp/jsC8",
   "bugs": {
@@ -11,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/macrometacorp/jsC8.git"
   },
-  "author": "C8 ",
+  "author": "C8",
   "keywords": [
     "c8",
     "c8db",
@@ -60,38 +63,63 @@
     "es6-error": "^4.1.1",
     "jwt-decode": "^2.2.0",
     "linkedlist": "^1.0.1",
-    "multi-part": "^2.0.0",
-    "query-string": "^6.11.1",
+    "multi-part": "^3.0.0",
     "ws": "^6.1.0",
     "xhr": "^2.4.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.10",
-    "@types/mocha": "^5.2.1",
-    "@types/request": "^2.47.1",
-    "@types/request-promise": "^4.1.42",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^8.0.3",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "@babel/core": "^7.13.16",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/preset-typescript": "^7.13.0",
+    "@types/chai": "^4.2.17",
+    "@types/mocha": "^8.2.2",
+    "@types/request-promise": "^4.1.47",
+    "@types/node": ">=13.13.4",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
     "babel-preset-env": "^1.7.0",
-    "chai": "^4.0.2",
+    "chai": "^4.3.4",
     "cpy-cli": "^2.0.0",
-    "eslint": "^4.13.0",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-prettier": "^2.3.1",
-    "mocha": "^5.2.0",
-    "mochawesome": "^4.1.0",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-security": "^1.4.0",
+    "mocha": "^8.3.2",
+    "mochawesome": "^7.0.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "^1.9.1",
-    "regenerator-runtime": "^0.11.1",
+    "path-browserify": "^1.0.1",
+    "prettier": "^2.2.1",
+    "process": "^0.11.10",
+    "querystring-es3": "^0.2.1",
+    "regenerator-runtime": "^0.13.7",
     "rimraf": "^2.6.2",
-    "source-map-support": "^0.5.0",
-    "ts-loader": "^3.2.0",
-    "typescript": "^2.6.2",
-    "webpack": "^3.0.0",
+    "source-map-support": "^0.5.19",
+    "typescript": "^3.8.3",
+    "url": "^0.11.0",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.6.0",
     "xunit-file": "^1.0.0",
     "yarn": "^1.10.1"
-  }
+  },
+  "babel": {
+    "plugins": [
+      "@babel/proposal-class-properties"
+    ],
+    "presets": [
+      "@babel/env",
+      [
+        "@babel/typescript",
+        {
+          "allowNamespaces": true
+        }
+      ]
+    ]
+  },
+  "browserslist": [
+    "> 2%",
+    "ie 11"
+  ]
 }

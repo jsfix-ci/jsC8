@@ -5,7 +5,7 @@ import {
   request as httpRequest
 } from "http";
 import { Agent as HttpsAgent, request as httpsRequest } from "https";
-import { parse as parseUrl, Url } from "url";
+import { parse as parseUrl, UrlWithStringQuery } from "url";
 import { joinPath } from "./joinPath";
 import { Errback } from "./types";
 
@@ -20,7 +20,7 @@ export type C8jsError = Error & {
 
 export interface RequestOptions {
   method: string;
-  url: Url;
+  url: { pathname: string; search?: string };
   headers: { [key: string]: string };
   body: any;
   expectBinary: boolean;
@@ -38,7 +38,7 @@ export function createRequest(
   agentOptions: any,
   agent: any
 ): RequestFunction {
-  const baseUrlParts = parseUrl(baseUrl);
+  const baseUrlParts = parseUrl(baseUrl) as Partial<UrlWithStringQuery>;;
   const isTls = baseUrlParts.protocol === "https:";
   if (!agent) {
     if (isTls) agent = new HttpsAgent(agentOptions);

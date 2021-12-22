@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 "use strict";
 var resolve = require("path").resolve;
-var webpack = require("webpack");
 
 module.exports = {
+  mode: "production",
   entry: ["regenerator-runtime/runtime", resolve(__dirname, "src/index.js")],
   devtool: "source-map",
   output: {
@@ -17,44 +18,16 @@ module.exports = {
       {
         test: /\.(ts|js)$/,
         loader: "babel-loader",
-        options: {
-          presets: [
-            [
-              "babel-preset-env",
-              {
-                target: {
-                  browsers: ["> 2%", "ie 11"]
-                }
-              }
-            ]
-          ],
-          plugins: [
-            "babel-plugin-transform-class-properties",
-            "babel-plugin-transform-object-rest-spread"
-          ]
-        }
       },
-      {
-        test: /\.ts/,
-        loader: "ts-loader",
-        options: {
-          transpileOnly: true,
-          compilerOptions: { target: "esnext" }
-        }
-      }
-    ]
+    ],
   },
   resolve: {
-    extensions: [".web.js", ".web.ts", ".js", ".ts", ".json"]
-  },
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env": { NODE_ENV: '"production"' }
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      minimize: true,
-      output: { comments: false }
-    })
-  ]
+    extensions: [".web.js", ".web.ts", ".js", ".ts", ".json"],
+    symlinks: false,
+    fallback: {
+      "path": require.resolve("path-browserify"),
+      "url": require.resolve("url"),
+      "querystring": require.resolve("querystring-es3")
+    },
+  }
 };

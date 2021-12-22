@@ -1,6 +1,6 @@
 import { Connection } from "./connection";
 import { getFullStreamPath } from "./util/helper";
-import { stringify } from "query-string";
+import { stringify } from "querystring";
 
 // 2 document
 // 3 edge

@@ -1,4 +1,4 @@
-import { Config } from "./connection";
+import type { Config } from "./connection";
 import { Fabric } from "./fabric";
 import {
   DocumentHandle,

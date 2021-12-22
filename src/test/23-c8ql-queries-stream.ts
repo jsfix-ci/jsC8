@@ -99,9 +99,7 @@ describe34("C8QL Stream queries", function() {
         .create()
         .then(() => {
           return Promise.all(
-            Array.apply(null, { length: 1000 })
-              .map(Number.call, Number)
-              .map((i: Number) => collection.save({ hallo: i }))
+            Array.from(Array(1000).keys()).map((i: Number) => collection.save({ hallo: i }))
           );
         })
         .then(() => void done())
@@ -122,7 +120,7 @@ describe34("C8QL Stream queries", function() {
 
       let count = 0;
       Promise.all(
-        Array.apply(null, { length: 25 }).map(() => fabric.query(query, opts))
+        Array.from(Array(25)).map(() => fabric.query(query, opts))
       )
         .then(cursors => {
           return Promise.all(

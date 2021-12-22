@@ -1,6 +1,6 @@
 import { c8ql } from "./c8ql-query";
 import { CollectionType, BaseCollection } from "./collection";
-import { Config } from "./connection";
+import type { Config } from "./connection";
 import { Fabric } from "./fabric";
 import { C8Error } from "./error";
 import { ArrayCursor } from "./cursor";
