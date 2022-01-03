@@ -92,7 +92,7 @@ export function createRequest(
         });
         if (body) req.write(body);
         req.end();
-      } catch (e) {
+      } catch (e: any) {
         if (called) return;
         called = true;
         callback(e);

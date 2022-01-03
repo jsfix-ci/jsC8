@@ -56,7 +56,7 @@ export class ArrayCursor {
 
   async all() {
     await this._drain();
-    let result = this._result;
+    const result = this._result;
     this._result = [];
     return result;
   }
@@ -127,7 +127,7 @@ export class ArrayCursor {
     fn: (value: any, index: number, self: ArrayCursor) => T
   ): Promise<T[]> {
     let index = 0;
-    let result: any[] = [];
+    const result: any[] = [];
     while (this._result.length || this._hasMore) {
       while (this._result.length) {
         result.push(fn(this._result.shift(), index, this));

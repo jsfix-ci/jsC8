@@ -23,15 +23,15 @@ describe("manipulating restql", function () {
         fabric.close();
     });
 
-   
+
     describe("fabric.saveQuery", () => {
-        
+
         it("should save a query", async () => {
             const queryName = "testQuery";
-            const response = await fabric.saveQuery(queryName, {}, "for coll in _collections return coll");
+            const response: any = await fabric.saveQuery(queryName, {}, "for coll in _collections return coll");
             expect(response.error).to.be.false;
             expect(response.result.name).to.equal(queryName);
-            
+
         })
     });
 
@@ -43,20 +43,20 @@ describe("manipulating restql", function () {
         })
     });
 
-    describe("fabric.executeSavedQuery",()=>{
+    describe("fabric.executeSavedQuery", () => {
         let response: { error: any; };
         const queryName = "testQuery";
         before(async () => {
             response = await fabric.executeSavedQuery(queryName, {});
         });
-       
+
         it("should execute a saved query", async () => {
             expect(response.error).to.be.false;
         })
 
     });
 
-    describe("fabric.deleteSavedQuery",()=>{
+    describe("fabric.deleteSavedQuery", () => {
         let response: { error: any; };
         const queryName = "testQuery";
 
@@ -68,7 +68,7 @@ describe("manipulating restql", function () {
 
     });
 
-    describe("fabric.createRestqlCursor",()=>{
+    describe("fabric.createRestqlCursor", () => {
         //const query = "FOR x IN _routing RETURN x";
 
         it("should delete a saved query");

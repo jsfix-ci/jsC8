@@ -96,7 +96,7 @@ describe("validating billing apis", function () {
             });
 
             it("billing.updateAccountDetails", async () => {
-                delete contactDetails.zipcode;
+                delete (contactDetails as any).zipcode;
 
                 try {
                     const response = await c8Client.billing(tenantName).updateAccountDetails(contactDetails);

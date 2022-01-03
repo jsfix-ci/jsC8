@@ -57,7 +57,7 @@ export class Stream {
   }
 
   _getPath(useName: boolean, urlSuffix?: string): string {
-    let topic = useName ? this.name : this.topic;
+    const topic = useName ? this.name : this.topic;
     return getFullStreamPath(topic, urlSuffix);
   }
 
@@ -192,14 +192,13 @@ export class Stream {
     const region = this.global ? "c8global" : "c8local";
     const tenant = this._connection.getTenantName();
     const queryParams = stringify(params);
-    let dbName = this._connection.getFabricName();
+    const dbName = this._connection.getFabricName();
 
     if (!dbName || !tenant)
       throw "Set correct DB and/or tenant name before using.";
 
-    let consumerUrl = `wss://api-${dcName}/_ws/ws/v2/consumer/${persist}/${tenant}/${region}.${dbName}/${
-      this.topic
-    }/${subscriptionName}`;
+    let consumerUrl = `wss://api-${dcName}/_ws/ws/v2/consumer/${persist}/${tenant}/${region}.${dbName}/${this.topic
+      }/${subscriptionName}`;
 
     // Appending query params to the url
     consumerUrl = `${consumerUrl}?${queryParams}`;
@@ -222,13 +221,12 @@ export class Stream {
     const region = this.global ? "c8global" : "c8local";
     const tenant = this._connection.getTenantName();
     const queryParams = stringify(params);
-    let dbName = this._connection.getFabricName();
+    const dbName = this._connection.getFabricName();
     if (!dbName || !tenant)
       throw "Set correct DB and/or tenant name before using.";
 
-    let producerUrl = `wss://api-${dcName}/_ws/ws/v2/producer/${persist}/${tenant}/${region}.${dbName}/${
-      this.topic
-    }`;
+    let producerUrl = `wss://api-${dcName}/_ws/ws/v2/producer/${persist}/${tenant}/${region}.${dbName}/${this.topic
+      }`;
 
     // Appending query params to the url
     producerUrl = `${producerUrl}?${queryParams}`;
@@ -253,7 +251,7 @@ export class Stream {
     );
   }
 
-  getMessageTtl(){
+  getMessageTtl() {
     return this._connection.request(
       {
         method: "GET",
@@ -263,7 +261,7 @@ export class Stream {
     );
   }
 
-  setMessageTtl(ttl: number = 3600){
+  setMessageTtl(ttl: number = 3600) {
     return this._connection.request(
       {
         method: "POST",

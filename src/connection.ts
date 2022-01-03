@@ -6,10 +6,12 @@ import {
   isBrowser,
   RequestFunction,
 } from "./util/request";
+import jwtDecode from 'jwt-decode';
+import LinkedList from 'linkedlist/lib/linkedlist'
 
-const jwtDecode = require("jwt-decode");
+// const jwtDecode = require("jwt-decode");
 
-const LinkedList = require("linkedlist/lib/linkedlist") as typeof Array;
+// const LinkedList = require("linkedlist/lib/linkedlist") as typeof Array;
 
 export const MIME_JSON = /\/(json|javascript)(\W|$)/;
 const LEADER_ENDPOINT_HEADER = "x-c8-endpoint";
@@ -69,18 +71,18 @@ export type Config =
   | string
   | string[]
   | Partial<{
-      url: string | string[];
-      fabricName: string;
-      apiKey: string;
-      token: string;
-      isAbsolute: boolean;
-      c8Version: number;
-      loadBalancingStrategy: LoadBalancingStrategy;
-      maxRetries: false | number;
-      agent: any;
-      agentOptions: { [key: string]: any };
-      headers: { [key: string]: string };
-    }>;
+    url: string | string[];
+    fabricName: string;
+    apiKey: string;
+    token: string;
+    isAbsolute: boolean;
+    c8Version: number;
+    loadBalancingStrategy: LoadBalancingStrategy;
+    maxRetries: false | number;
+    agent: any;
+    agentOptions: { [key: string]: any };
+    headers: { [key: string]: string };
+  }>;
 
 export class Connection {
   private _activeTasks: number = 0;
@@ -121,11 +123,11 @@ export class Connection {
     this._agentOptions = isBrowser
       ? { ...config.agentOptions! }
       : {
-          maxSockets: 3,
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          ...config.agentOptions,
-        };
+        maxSockets: 3,
+        keepAlive: true,
+        keepAliveMsecs: 1000,
+        ...config.agentOptions,
+      };
     this._maxTasks = this._agentOptions.maxSockets || 3;
     if (this._agentOptions.keepAlive) this._maxTasks *= 2;
 
@@ -336,7 +338,7 @@ export class Connection {
   }
 
   extractTenantName(apiKey: string) {
-    let apiKeyArr = apiKey.split(".");
+    const apiKeyArr = apiKey.split(".");
     apiKeyArr.splice(-2, 2);
     return apiKeyArr.join(".") || "_mm";
   }
@@ -419,7 +421,7 @@ export class Connection {
               try {
                 parsedBody = res.body;
                 parsedBody = JSON.parse(parsedBody);
-              } catch (e) {
+              } catch (e: any) {
                 if (!expectBinary) {
                   if (typeof parsedBody !== "string") {
                     parsedBody = res.body.toString("utf-8");

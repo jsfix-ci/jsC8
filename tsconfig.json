@@ -7,7 +7,10 @@
     "importHelpers": false,
     "sourceMap": true,
     "inlineSources": true,
-    "lib": ["es2018", "dom"],
+    "lib": [
+      "es2018",
+      "dom"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmit": false,
@@ -28,7 +31,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declarationMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "exclude": ["node_modules", "lib"]
+  "exclude": [
+    "node_modules",
+    "lib"
+  ]
 }

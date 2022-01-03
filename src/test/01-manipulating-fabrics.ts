@@ -191,7 +191,7 @@ describe("Manipulating fabrics", function () {
           try {
             await fabric.collection(name).document("example");
             expect.fail("Expected document to be destroyed");
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.an.instanceof(C8Error);
             expect(e.code).eq(404);
             return;
@@ -201,7 +201,7 @@ describe("Manipulating fabrics", function () {
           try {
             await fabric.collection(name).document("example");
             expect.fail("Expected document to be destroyed");
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.an.instanceof(C8Error);
             expect(e.code).eq(404);
             return;

@@ -20,7 +20,7 @@ describe("validating plan apis", function () {
     });
 
     describe("Plan", () => {
-        const planDetails = {
+        const planDetails: any = {
             name: "testPlan",
             planId: "planId",
             description: "description",
@@ -45,14 +45,14 @@ describe("validating plan apis", function () {
 
         describe("plan.createPlan", () => {
             it("if tenant provides the valid data", async () => {
-                const response = await c8Client.plan("").createPlan(planDetails);
+                const response = await c8Client.plan("").createPlan(planDetails as any);
                 expect(response.name).to.equals(planDetails.name);
             });
 
             it("if tenant provides the invalid data", async () => {
                 delete planDetails.active;
                 try {
-                    const response = await c8Client.plan("").createPlan(planDetails);
+                    const response = await c8Client.plan("").createPlan(planDetails as any);
                     expect(response.name).to.equals(planDetails.name);
                 } catch (err) {
                     expect(err).is.instanceof(C8Error);

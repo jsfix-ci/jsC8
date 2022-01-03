@@ -1,12 +1,5 @@
 import { Readable } from "stream";
-
-declare class MultiPart {
-  append(key: string, value: Readable | Buffer | string): void;
-  getBoundary(): string;
-  getStream(): Readable;
-}
-
-const Multipart = require("multi-part") as typeof MultiPart;
+import Multipart from 'multi-part'
 
 export type Fields = {
   [key: string]: any;
@@ -35,7 +28,7 @@ export function toForm(fields: Fields): Promise<MultipartRequest> {
       }
       const stream = form.getStream();
       const bufs: Buffer[] = [];
-      stream.on("data", buf => bufs.push(buf as Buffer));
+      stream.on("data", (buf: Buffer) => bufs.push(buf as Buffer));
       stream.on("end", () => {
         bufs.push(Buffer.from("\r\n"));
         const body = Buffer.concat(bufs);
@@ -46,7 +39,7 @@ export function toForm(fields: Fields): Promise<MultipartRequest> {
         };
         resolve({ body, headers });
       });
-      stream.on("error", e => {
+      stream.on("error", (e: any) => {
         reject(e);
       });
     } catch (e) {

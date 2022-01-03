@@ -17,7 +17,7 @@ export function toForm(fields: Fields, callback: Errback<MultipartRequest>) {
       }
       form.append(key, value);
     }
-  } catch (e) {
+  } catch (e: any) {
     callback(e);
     return;
   }
