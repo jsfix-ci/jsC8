@@ -6,9 +6,7 @@ Globally distributed applications need a geo distributed fast data platform that
 
 C8 is a fully managed geo-distributed fast data service with turnkey global distribution and transparent multi-master replication. You can run globally distributed, low-latency workloads within C8. This article is an introduction to using C8 with jsC8 (JavaScript Driver).
 
-[jsc8_tutorial](https://cdn.document360.io/d1a6730a-fd70-4f0a-a08d-dfa28ca8b958/Images/Documentation/pyc8_tutorial.png)
-
-In jsC8, a **document** is an object that is a JSON serializable object with the following properties:
+In jsC8, a `document` is an object that is a JSON serializable object with the following properties:
 
 - Contains the `_key` field, which identifies the document uniquely within a specific collection.
 - Contains the `_id` field (also called the _handle_), which identifies the document uniquely across all collections within a fabric. This ID is a combination of the collection name and the document key using the format `{collection}/{key}` (see example below).
@@ -16,34 +14,37 @@ In jsC8, a **document** is an object that is a JSON serializable object with the
 
 Here is an example of a valid document:
 
-```
-    {
-        '_id': 'students/bruce',
-        '_key': 'bruce',
-        '_rev': '_Wm3dzEi--_',
-        'first_name': 'Bruce',
-        'last_name': 'Wayne',
-        'address': {
-            'street' : '1007 Mountain Dr.',
-            'city': 'Gotham',
-            'state': 'NJ'
-        },
-        'is_rich': True,
-        'friends': ['robin', 'gordon']
-    }
+```json
+{
+   "_id":"students/bruce",
+   "_key":"bruce",
+   "_rev":"_Wm3dzEi--_",
+   "first_name":"Bruce",
+   "last_name":"Wayne",
+   "address":{
+      "street":"1007 Mountain Dr.",
+      "city":"Gotham",
+      "state":"NJ"
+   },
+   "is_rich":true,
+   "friends":[
+      "robin",
+      "gordon"
+   ]
+}
 ```
 
-**Edge documents (edges)** are similar to standard documents but with two additional required fields `_from` and `_to`. Values of these fields must be the handles of "from" and "to" vertex documents linked by the edge document in question (see :doc:`graph` for details). Here is an example of a valid edge document:
+**Edge documents (edges)** are similar to standard documents but with two additional required fields `_from` and `_to`. Values of these fields must be the handles of "from" and "to" vertex documents linked by the edge document in question (see [graph](https://macrometa.com/docs/collections/graphs/quickstart) documentation for details). Here is an example of a valid edge document:
 
-```
-    {
-        '_id': 'friends/001',
-        '_key': '001',
-        '_rev': '_Wm3dyle--_',
-        '_from': 'students/john',
-        '_to': 'students/jane',
-        'closeness': 9.5
-    }
+```json
+{
+   "_id":"friends/001",
+   "_key":"001",
+   "_rev":"_Wm3dyle--_",
+   "_from":"students/john",
+   "_to":"students/jane",
+   "closeness":9.5
+}
 ```
 
 ## Pre-requisite
@@ -56,13 +57,15 @@ Let's assume your tenant name is `demotenant` and `root` user password is `demop
 
 ```bash
 yarn add jsc8
-## - or -
+
+OR
+
 npm install jsc8
 ```
 
 If you want to use the driver outside of the current directory, you can also install it globally using the --global flag:
 
-```js
+```bash
 npm install --global jsc8
 ```
 
@@ -94,7 +97,7 @@ const client = new jsc8([
 ]);
 ```
 
-This connection string actually represents the default value( `"https://gdn1.macrometa.io"` ), so if this is the value you want, you can omit url while invocation:
+This connection string actually represents the default value `https://gdn1.macrometa.io`, so if this is the value you want, you can omit url while invocation:
 
 ```js
 const jsc8 = require("jsc8");
@@ -133,11 +136,11 @@ To use the demotenant, we need to use client.useTenant as below
 client.useTenant(tenant_name);
 ```
 
-### With token
+### Auth with Token
 
-If you want to login with token then you just need to pass the token wrapping in Object with your region URL with specific fabric.
+If you want to login with a token, you need to pass the token wrapping in an object with your region URL with a specific fabric.
 
-Note: Default value for fabric is `_system`
+> Note: Default value for fabric is `_system`
 
 ```js
 const jsc8 = require("jsc8");
@@ -159,11 +162,11 @@ client = new jsc8({
 });
 ```
 
-### With apikey
+### With API Key
 
-If you want to login with apikey then you just need to pass the apikey wrapping in Object with your region URL with specific fabric.
+If you want to log in with an API key, you need to pass the API key wrapping an object with your region URL using a specific fabric.
 
-Note: by default value for fabric is `_system`
+> Note: by default value for fabric is `_system`
 
 ```js
 const jsc8 = require("jsc8");
@@ -194,9 +197,17 @@ The below example shows the steps.
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function createCollection() {
   let collectionDetails;
@@ -213,7 +224,7 @@ async function createCollection() {
 createCollection().then(console.log);
 ```
 
-### Advanced User
+### Advanced Usage
 
 ```js
 const jsc8 = require("jsc8");
@@ -254,12 +265,21 @@ Let's add a hash_index called `emails` to our collection `employees`. Please ref
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function createIndex() {
   let index;
+
   try {
     index = await client.addHashIndex("employees", ["email", "_key"]);
     await console.log("The index details are: ", index);
@@ -273,9 +293,9 @@ async function createIndex() {
 createIndex();
 ```
 
-Note:- Just like above example user can create `addTtlIndex, addFullTextIndex, addPersistentIndex, addSkiplistIndex addGeoIndex`. Checkout more for - [Indexes](docs/Reference/Collection/Indexes.md)
+> Note: Just like above example user can create `addTtlIndex, addFullTextIndex, addPersistentIndex, addSkiplistIndex addGeoIndex`. Please reference the docs on [indexing](https://macrometa.com/docs/collections/documents/indexing/index-basics) for more information.
 
-### Advanced User
+### Advanced Usage
 
 ```js
 const jsc8 = require("jsc8");
@@ -297,12 +317,15 @@ async function createIndex() {
   await console.log(
     "Creating the index on collection employees under demoFabric..."
   );
+
   let index;
+
   try {
     index = await collection.createIndex({
       type: "hash",
       fields: ["email", "_key"],
     });
+
     await console.log("The index details are: ", index);
   } catch (e) {
     return "Index creation did not succeed due to " + e;
@@ -353,9 +376,17 @@ const docs = [docJean, docJames, docHan, docBruce];
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function populate() {
   await console.log("Creating the collection object to be used...");
@@ -388,6 +419,7 @@ async function populate() {
   for (let doc of docs) {
     await collection.save(doc);
   }
+
   await console.log("collection populated with documents");
 }
 
@@ -403,14 +435,23 @@ C8QL is C8's query language. You can execute C8QL query on our newly created col
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function c8Queries() {
   const result = await client.executeQuery(
     "FOR employee IN employees RETURN employee"
   );
+
   await console.log(result);
 }
 
@@ -440,7 +481,9 @@ async function c8Queries() {
   const cursor = await client.query(
     c8ql`FOR employee IN employees RETURN employee`
   );
+
   const result = await cursor.all();
+
   await console.log(result);
 }
 
@@ -454,9 +497,17 @@ Example for real-time updates from a collection in fabric:
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({url: "https://gdn1.macrometa.io", token: "XXXX"});
+const client = new jsc8({
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX"
+});
+
 //---- OR ----
-const client = new jsc8({url: "https://gdn1.macrometa.io", apiKey: "XXXX"});
+
+const client = new jsc8({
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX"
+});
 
 async function callback_fn(collectionName) {
   await console.log("Connection open on ", collectionName);
@@ -504,7 +555,7 @@ async function realTimeListener() {
   listener.on('message',(msg) => console.log("message=>", msg));
   listener.on('open',() => {
       callback_fn(collection);
-    });
+  });
   listener.on('close',() => console.log("connection closed"));
 }
 
@@ -518,9 +569,17 @@ Creating streams in C8 is a 1 step operation. The stream can be either a `local`
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function streamDemo() {
   await client.createStream("newStreamFromJSC8", false);
@@ -566,7 +625,7 @@ async function streamDemo() {
   client.useTenant("tenant-name");
 
   stream = client.stream("newStreamFromJSC8", false);
-  //Here the last boolean value tells if the stream is local or global. false means that it is global.(DEFAULT: false)
+  // Here the last boolean value tells if the stream is local or global. false means that it is global.(DEFAULT: false)
 
   await stream.createStream();
 
@@ -625,8 +684,13 @@ const delete_data = "REMOVE 'abc' IN " + collection_name;
 const get_count = "RETURN COUNT(FOR doc IN " + collection_name + " RETURN 1)";
 
 const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function restqldemo() {
   console.log("------- CREATE GEO-REPLICATED COLLECTION  ------");
@@ -685,7 +749,7 @@ restqldemo().then(console.log("Starting Execution"));
 ```js
 const jsc8 = require("jsc8");
 
-//Variables
+// Variables
 const fed_url = "https://gdn1.macrometa.io";
 const guest_tenant_email = "guest@macrometa.io";
 const guest_tenant = "guest";
@@ -695,7 +759,7 @@ const geo_fabric = "guest5";
 const collection_name =
   "addresses" + Math.floor(1000 + Math.random() * 9000).toString();
 
-//Queries
+// Queries
 const insert_data =
   "INSERT {'firstname':@firstname, 'lastname':@lastname, 'email':@email, 'zipcode':@zipcode, '_key': 'abc'} IN " +
   collection_name;
@@ -774,9 +838,17 @@ Let's create geo-fabric called `demofabric` by passing a parameter called `dclis
 ```js
 const jsc8 = require("jsc8");
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX" });
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX" 
+});
+
 //---- OR ----
-const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX" });
+
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  apiKey: "XXXX" 
+});
 
 async function createFabric() {
 
@@ -811,9 +883,14 @@ To get details of `fabric` geo-fabric
 ```js
 const jsc8 = require("jsc8");
 
+const client = new jsc8({ 
+  url: "https://gdn1.macrometa.io", 
+  token: "XXXX", 
+  fabricName: "_system"
+});
 
-const client = new jsc8({ url: "https://gdn1.macrometa.io", token: "XXXX", fabricName: "_system"});
 //---- OR ----
+
 const client = new jsc8({ url: "https://gdn1.macrometa.io", apiKey: "XXXX", fabricName: "_system"});
 
 async function getFabric() {
